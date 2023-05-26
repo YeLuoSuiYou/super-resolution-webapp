@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+import uuid
 import os
 
 app = Flask(__name__)
@@ -12,14 +13,15 @@ def upload():
     image = request.files.get("image")
     if not image:
         return jsonify({"error": 1001, "msg": "未上传图片"})
+    
+    # 生成随机文件名
+    ext = os.path.splitext(image.filename)[1]
+    filename = str(uuid.uuid1()) + ext
 
     # 保存图片文件
-    filename = image.filename or "default.png"
     image.save(os.path.join("image/", filename))
 
     # 返回图片URL
-    filename = image.filename or "default.png"
-    print(request.host + "/image/" + filename)
     return jsonify({"url": request.host + "/image/" + filename,
                     "filename": filename})
 
