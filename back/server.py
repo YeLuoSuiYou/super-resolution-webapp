@@ -35,7 +35,7 @@ def upload():
     limit_number_images(5)
 
     # 生成随机文件名
-    ext = os.path.splitext(image.filename)[1]
+    ext = os.path.splitext(image.filename)[1] # type: ignore
     filename = str(uuid.uuid1()) + ext
 
 

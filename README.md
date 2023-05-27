@@ -20,6 +20,14 @@ conda activate my_env
 pip install -r requirements.txt
 ```
 
+**warning：本项目强烈建议装好cuda版本的pytorch后再进行clone，cpu版本的跑不动本项目的模型推理部分，执意使用cpu推理，请更改代码**
+
+```python
+# ./back/server.py line49
+#super_res_image = generate_super_resolution_image(image, lower_res_filename_save, super_res_filename_save, device_type="cuda")
+super_res_image = generate_super_resolution_image(image, lower_res_filename_save, super_res_filename_save, device_type="cpu")
+```
+
 ### 安装Vue相关依赖
 
 ```shell
