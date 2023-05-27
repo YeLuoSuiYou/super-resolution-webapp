@@ -46,7 +46,7 @@ def upload():
     super_res_filename_save = os.path.join("image/sr/", super_res_filename)
 
     # 调用超分辨率模型
-    super_res_image = generate_super_resolution_image(image, lower_res_filename_save, super_res_filename_save)
+    super_res_image = generate_super_resolution_image(image, lower_res_filename_save, super_res_filename_save, device_type="cuda")
 
     # 返回超分辨率图片URL
     return jsonify({"url": request.host + "/image/sr/" + super_res_filename,

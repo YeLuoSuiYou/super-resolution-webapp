@@ -1,4 +1,5 @@
 <template>
+    <h1>图片超分辨率Web应用</h1>
     <el-upload class="upload-demo" drag :name="'image'" :action="'http://127.0.0.1:5000/upload'" multiple
         :before-upload="beforeUpload" :on-remove="handleRemove" :on-success="handleSuccess" :before-remove="beforeRemove"
         :show-file-list="false">
@@ -54,4 +55,13 @@ export default {
 </script>
 
 <style scoped>
+  h1 {
+    background-image: url(/background/school.jpg);
+    background-size: cover;
+    background-position: center;
+    color: white;
+    text-align: center;
+    font-size: 50px;
+    padding: 50px 0;
+  }
 </style>

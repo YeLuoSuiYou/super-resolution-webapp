@@ -9,55 +9,76 @@ from torch.nn import Module
 from torch.optim import Optimizer
 
 __all__ = [
-    "load_state_dict", "make_directory", "save_checkpoint",
-    "Summary", "AverageMeter", "ProgressMeter"
+    "load_state_dict",
+    "make_directory",
+    "save_checkpoint",
+    "Summary",
+    "AverageMeter",
+    "ProgressMeter",
 ]
 
 
 def load_state_dict(
-        model: nn.Module,
-        model_weights_path: str,
-        ema_model: nn.Module = None,
-        optimizer: torch.optim.Optimizer = None,
-        scheduler: torch.optim.lr_scheduler = None,
-        load_mode: str = None,
-) -> tuple[Module, Module, Any, Any, Any, Optimizer or None, Any] or tuple[Module, Any, Any, Any, Optimizer or None, Any] or Module:
-    # Load model weights
-    checkpoint = torch.load(model_weights_path, map_location=lambda storage, loc: storage)
+    model: nn.Module,
+    model_weights_path: str,
+    ema_model: nn.Module = None,
+    optimizer: torch.optim.Optimizer = None,
+    scheduler: torch.optim.lr_scheduler = None,
+    load_mode: str = None,
+) -> (
+    tuple[Module, Module, Any, Any, Any, Optimizer or None, Any]
+    or tuple[Module, Any, Any, Any, Optimizer or None, Any]
+    or Module
+):
+    # 加载模型权重
+    checkpoint = torch.load(
+        model_weights_path, map_location=lambda storage, loc: storage
+    )
 
     if load_mode == "resume":
-        # Restore the parameters in the training node to this point
+        # 将训练节点中的参数恢复到该点
         start_epoch = checkpoint["epoch"]
         best_psnr = checkpoint["best_psnr"]
         best_ssim = checkpoint["best_ssim"]
-        # Load model state dict. Extract the fitted model weights
+        # 负载模型状态字典。提取拟合的模型权重
         model_state_dict = model.state_dict()
-        state_dict = {k: v for k, v in checkpoint["state_dict"].items() if k in model_state_dict.keys()}
-        # Overwrite the model weights to the current model (base model)
+        state_dict = {
+            k: v
+            for k, v in checkpoint["state_dict"].items()
+            if k in model_state_dict.keys()
+        }
+        # 将模型权重覆盖到当前模型(基本模型)
         model_state_dict.update(state_dict)
         model.load_state_dict(model_state_dict)
-        # Load the optimizer model
+        # 加载优化器模型
         optimizer.load_state_dict(checkpoint["optimizer"])
 
         if scheduler is not None:
-            # Load the scheduler model
+            # 加载调度器模型
             scheduler.load_state_dict(checkpoint["scheduler"])
 
         if ema_model is not None:
-            # Load ema model state dict. Extract the fitted model weights
+            # 加载ema模型状态字典。提取拟合的模型权重
             ema_model_state_dict = ema_model.state_dict()
-            ema_state_dict = {k: v for k, v in checkpoint["ema_state_dict"].items() if k in ema_model_state_dict.keys()}
-            # Overwrite the model weights to the current model (ema model)
+            ema_state_dict = {
+                k: v
+                for k, v in checkpoint["ema_state_dict"].items()
+                if k in ema_model_state_dict.keys()
+            }
+            # 将模型权重覆盖到当前模型(ema模型)
             ema_model_state_dict.update(ema_state_dict)
             ema_model.load_state_dict(ema_model_state_dict)
 
         return model, ema_model, start_epoch, best_psnr, best_ssim, optimizer, scheduler
     else:
-        # Load model state dict. Extract the fitted model weights
+        # 负载模型状态字典。提取拟合的模型权重
         model_state_dict = model.state_dict()
-        state_dict = {k: v for k, v in checkpoint["state_dict"].items() if
-                      k in model_state_dict.keys() and v.size() == model_state_dict[k].size()}
-        # Overwrite the model weights to the current model
+        state_dict = {
+            k: v
+            for k, v in checkpoint["state_dict"].items()
+            if k in model_state_dict.keys() and v.size() == model_state_dict[k].size()
+        }
+        # 将模型权重覆盖到当前模型
         model_state_dict.update(state_dict)
         model.load_state_dict(model_state_dict)
 
@@ -70,14 +91,14 @@ def make_directory(dir_path: str) -> None:
 
 
 def save_checkpoint(
-        state_dict: dict,
-        file_name: str,
-        samples_dir: str,
-        results_dir: str,
-        best_file_name: str,
-        last_file_name: str,
-        is_best: bool = False,
-        is_last: bool = False,
+    state_dict: dict,
+    file_name: str,
+    samples_dir: str,
+    results_dir: str,
+    best_file_name: str,
+    last_file_name: str,
+    is_best: bool = False,
+    is_last: bool = False,
 ) -> None:
     checkpoint_path = os.path.join(samples_dir, file_name)
     torch.save(state_dict, checkpoint_path)
