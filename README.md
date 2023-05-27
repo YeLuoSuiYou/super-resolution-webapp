@@ -25,7 +25,8 @@ pip install -r requirements.txt
 ```python
 # ./back/server.py line49
 #super_res_image = generate_super_resolution_image(image, lower_res_filename_save, super_res_filename_save, device_type="cuda")
-super_res_image = generate_super_resolution_image(image, lower_res_filename_save, super_res_filename_save, device_type="cpu")
+#														into
+#super_res_image = generate_super_resolution_image(image, lower_res_filename_save, super_res_filename_save, device_type="cpu")
 ```
 
 ### 安装Vue相关依赖
