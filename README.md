@@ -1,29 +1,39 @@
-# vue-test
+# 图片超分辨率Web应用
 
-This template should help get you started developing with Vue 3 in Vite.
+本项目的前端由Vue3开发，后端由Flask开发，通过HTTP请求通信。后端调用SRGAN网络实现图像超分辨率
 
-## Recommended IDE Setup
+## 推荐的IDE设置
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
-## Customize configuration
+## 运行项目
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+```shell
+git clone https://gitee.com/the_night_falls_with_you/Super-resolution.git
+cd Super-resolution
+```
 
-## Project Setup
+### 进入conda环境，安装相关的python依赖
 
-```sh
+```shell
+conda activate my_env
+pip install -r requirements.txt
+```
+
+### 安装Vue相关依赖
+
+```shell
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### 启动前后端
 
-```sh
+```shell
+# 启动前端
 npm run dev
+# 切换一个powershell，启动后端
+cd back
+python server.py
 ```
 
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
+即可打开命令行中的前端地址访问本Web应用

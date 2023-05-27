@@ -28,6 +28,4 @@ coverage
 *.sw?
 
 # Data
-/back/image/lr/*
-/back/image/sr/*
 /back/__pycache__/*
