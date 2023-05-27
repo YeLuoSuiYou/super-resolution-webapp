@@ -54,5 +54,4 @@ export default {
 </script>
 
 <style scoped>
-/* CSS for Upload component */
 </style>

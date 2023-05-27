@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <Upload :fileList="fileList" />
-        <ImageContainer v-for="(file, index) in fileList" :key="index" :file="file" @remove="handleRemove(file)" />
+        <ImageContainer v-for="(file, index) in fileList" :key="index" :file="file" @remove="handleRemove" />
         <div class="center-bottom">Jason_Ye    2023</div>
     </div>
 </template>
