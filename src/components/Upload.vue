@@ -55,7 +55,7 @@ export default {
 </script>
 
 <style scoped>
-  h1 {
+h1 {
     background-image: url(/background/school.jpg);
     background-size: cover;
     background-position: center;
@@ -63,5 +63,5 @@ export default {
     text-align: center;
     font-size: 50px;
     padding: 50px 0;
-  }
+}
 </style>
