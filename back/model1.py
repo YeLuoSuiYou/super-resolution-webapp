@@ -10,44 +10,40 @@ from torchvision import transforms
 from torchvision.models.feature_extraction import create_feature_extractor
 
 __all__ = [
-    "SRResNet",
-    "Discriminator",
-    "srresnet_x4",
-    "discriminator",
-    "content_loss",
+    "SRResNet", "Discriminator",
+    "srresnet_x4", "discriminator", "content_loss",
 ]
 
 
-# 超分辨率残差网络
 class SRResNet(nn.Module):
     def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        channels: int,
-        num_rcb: int,
-        upscale_factor: int,
+            self,
+            in_channels: int,
+            out_channels: int,
+            channels: int,
+            num_rcb: int,
+            upscale_factor: int
     ) -> None:
         super(SRResNet, self).__init__()
-        # 低频信息提取层
+        # Low frequency information extraction layer
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels, channels, (9, 9), (1, 1), (4, 4)),
             nn.PReLU(),
         )
 
-        # 高频信息提取块
+        # High frequency information extraction block
         trunk = []
         for _ in range(num_rcb):
             trunk.append(_ResidualConvBlock(channels))
         self.trunk = nn.Sequential(*trunk)
 
-        # 高频信息线性融合层
+        # High-frequency information linear fusion layer
         self.conv2 = nn.Sequential(
             nn.Conv2d(channels, channels, (3, 3), (1, 1), (1, 1), bias=False),
             nn.BatchNorm2d(channels),
         )
 
-        # 缩放块
+        # zoom block
         upsampling = []
         if upscale_factor == 2 or upscale_factor == 4 or upscale_factor == 8:
             for _ in range(int(math.log(upscale_factor, 2))):
@@ -56,16 +52,16 @@ class SRResNet(nn.Module):
             upsampling.append(_UpsampleBlock(channels, 3))
         self.upsampling = nn.Sequential(*upsampling)
 
-        # 重建块
+        # reconstruction block
         self.conv3 = nn.Conv2d(channels, out_channels, (9, 9), (1, 1), (4, 4))
 
-        # 初始化神经网络权重
+        # Initialize neural network weights
         self._initialize_weights()
 
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
 
-    # 支持torch.script函数
+    # Support torch.script function
     def _forward_impl(self, x: Tensor) -> Tensor:
         out1 = self.conv1(x)
         out = self.trunk(out1)
@@ -88,36 +84,35 @@ class SRResNet(nn.Module):
                 nn.init.constant_(module.weight, 1)
 
 
-# 判别器
 class Discriminator(nn.Module):
     def __init__(self) -> None:
         super(Discriminator, self).__init__()
         self.features = nn.Sequential(
-            # 输入尺寸. (3) x 96 x 96
+            # input size. (3) x 96 x 96
             nn.Conv2d(3, 64, (3, 3), (1, 1), (1, 1), bias=True),
             nn.LeakyReLU(0.2, True),
-            # 状态尺寸. (64) x 48 x 48
+            # state size. (64) x 48 x 48
             nn.Conv2d(64, 64, (3, 3), (2, 2), (1, 1), bias=False),
             nn.BatchNorm2d(64),
             nn.LeakyReLU(0.2, True),
             nn.Conv2d(64, 128, (3, 3), (1, 1), (1, 1), bias=False),
             nn.BatchNorm2d(128),
             nn.LeakyReLU(0.2, True),
-            # 状态尺寸. (128) x 24 x 24
+            # state size. (128) x 24 x 24
             nn.Conv2d(128, 128, (3, 3), (2, 2), (1, 1), bias=False),
             nn.BatchNorm2d(128),
             nn.LeakyReLU(0.2, True),
             nn.Conv2d(128, 256, (3, 3), (1, 1), (1, 1), bias=False),
             nn.BatchNorm2d(256),
             nn.LeakyReLU(0.2, True),
-            # 状态尺寸. (256) x 12 x 12
+            # state size. (256) x 12 x 12
             nn.Conv2d(256, 256, (3, 3), (2, 2), (1, 1), bias=False),
             nn.BatchNorm2d(256),
             nn.LeakyReLU(0.2, True),
             nn.Conv2d(256, 512, (3, 3), (1, 1), (1, 1), bias=False),
             nn.BatchNorm2d(512),
             nn.LeakyReLU(0.2, True),
-            # 状态尺寸. (512) x 6 x 6
+            # state size. (512) x 6 x 6
             nn.Conv2d(512, 512, (3, 3), (2, 2), (1, 1), bias=False),
             nn.BatchNorm2d(512),
             nn.LeakyReLU(0.2, True),
@@ -130,7 +125,7 @@ class Discriminator(nn.Module):
         )
 
     def forward(self, x: Tensor) -> Tensor:
-        # 输入图像尺寸必须等于96
+        # Input image size must equal 96
         assert x.shape[2] == 96 and x.shape[3] == 96, "Image shape must equal 96x96"
 
         out = self.features(x)
@@ -140,7 +135,6 @@ class Discriminator(nn.Module):
         return out
 
 
-# 残差卷积块
 class _ResidualConvBlock(nn.Module):
     def __init__(self, channels: int) -> None:
         super(_ResidualConvBlock, self).__init__()
@@ -162,18 +156,11 @@ class _ResidualConvBlock(nn.Module):
         return out
 
 
-# 上采样块
 class _UpsampleBlock(nn.Module):
     def __init__(self, channels: int, upscale_factor: int) -> None:
         super(_UpsampleBlock, self).__init__()
         self.upsample_block = nn.Sequential(
-            nn.Conv2d(
-                channels,
-                channels * upscale_factor * upscale_factor,
-                (3, 3),
-                (1, 1),
-                (1, 1),
-            ),
+            nn.Conv2d(channels, channels * upscale_factor * upscale_factor, (3, 3), (1, 1), (1, 1)),
             nn.PixelShuffle(2),
             nn.PReLU(),
         )
@@ -184,79 +171,67 @@ class _UpsampleBlock(nn.Module):
         return out
 
 
-# 内容损失
 class _ContentLoss(nn.Module):
-    """基于VGG19网络构建内容损失函数。
-    使用后面层次的高级特征映射层将更加关注图像的纹理内容。
+    """Constructs a content loss function based on the VGG19 network.
+    Using high-level feature mapping layers from the latter layers will focus more on the texture content of the image.
 
-    论文参考列表：
+    Paper reference list:
         -`Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network <https://arxiv.org/pdf/1609.04802.pdf>` paper.
         -`ESRGAN: Enhanced Super-Resolution Generative Adversarial Networks                    <https://arxiv.org/pdf/1809.00219.pdf>` paper.
         -`Perceptual Extreme Super Resolution Network with Receptive Field Block               <https://arxiv.org/pdf/2005.12597.pdf>` paper.
 
-    """
+     """
 
     def __init__(
-        self,
-        feature_model_extractor_node: str,
-        feature_model_normalize_mean: list,
-        feature_model_normalize_std: list,
+            self,
+            feature_model_extractor_node: str,
+            feature_model_normalize_mean: list,
+            feature_model_normalize_std: list
     ) -> None:
         super(_ContentLoss, self).__init__()
-        # 获取指定特征提取节点的名称
+        # Get the name of the specified feature extraction node
         self.feature_model_extractor_node = feature_model_extractor_node
-        # 加载在ImageNet数据集上训练的VGG19模型。
+        # Load the VGG19 model trained on the ImageNet dataset.
         model = models.vgg19(weights=models.VGG19_Weights.IMAGENET1K_V1)
-        # 提取VGG19模型中的第三十六层输出作为内容损失。
-        self.feature_extractor = create_feature_extractor(
-            model, [feature_model_extractor_node]
-        )
-        # 设置为验证模式
+        # Extract the thirty-sixth layer output in the VGG19 model as the content loss.
+        self.feature_extractor = create_feature_extractor(model, [feature_model_extractor_node])
+        # set to validation mode
         self.feature_extractor.eval()
 
-        # 输入数据的预处理方法。
-        # 这是ImageNet数据集的VGG模型预处理方法。
-        self.normalize = transforms.Normalize(
-            feature_model_normalize_mean, feature_model_normalize_std
-        )
+        # The preprocessing method of the input data. 
+        # This is the VGG model preprocessing method of the ImageNet dataset.
+        self.normalize = transforms.Normalize(feature_model_normalize_mean, feature_model_normalize_std)
 
-        # 冻结模型参数。
+        # Freeze model parameters.
         for model_parameters in self.feature_extractor.parameters():
             model_parameters.requires_grad = False
 
     def forward(self, sr_tensor: Tensor, gt_tensor: Tensor) -> Tensor:
-        # 标准化操作
+        # Standardized operations
         sr_tensor = self.normalize(sr_tensor)
         gt_tensor = self.normalize(gt_tensor)
 
-        sr_feature = self.feature_extractor(sr_tensor)[
-            self.feature_model_extractor_node
-        ]
-        gt_feature = self.feature_extractor(gt_tensor)[
-            self.feature_model_extractor_node
-        ]
+        sr_feature = self.feature_extractor(sr_tensor)[self.feature_model_extractor_node]
+        gt_feature = self.feature_extractor(gt_tensor)[self.feature_model_extractor_node]
 
-        # 找到两个图像之间的特征图差异
+        # Find the feature map difference between the two images
         loss = F_torch.mse_loss(sr_feature, gt_feature)
 
         return loss
 
 
-# 超分辨率残差网络x4
 def srresnet_x4(**kwargs: Any) -> SRResNet:
     model = SRResNet(upscale_factor=4, **kwargs)
 
     return model
 
 
-# 判别器
 def discriminator() -> Discriminator:
     model = Discriminator()
 
     return model
 
 
-# 内容损失
 def content_loss(**kwargs: Any) -> _ContentLoss:
     content_loss = _ContentLoss(**kwargs)
 
