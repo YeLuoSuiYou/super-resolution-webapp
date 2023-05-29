@@ -20,14 +20,9 @@ conda activate my_env
 pip install -r requirements.txt
 ```
 
-**warning：本项目强烈建议装好cuda版本的pytorch后再进行clone，cpu版本的跑不动本项目的模型推理部分，执意使用cpu推理，请更改代码**
+**warning：本项目强烈建议装好cuda版本的pytorch后再进行clone，cpu版本的跑不动本项目的模型推理部分，执意使用cpu推理，请更改代码`./back/server.py`**
 
-```python
-# ./back/server.py line49
-#super_res_image = generate_super_resolution_image(image, lower_res_filename_save, super_res_filename_save, device_type="cuda")
-#														into
-#super_res_image = generate_super_resolution_image(image, lower_res_filename_save, super_res_filename_save, device_type="cpu")
-```
+- line49: `super_res_image`  更改为`generate_super_resolution_image(image, lower_res_filename_save, super_res_filename_save, device_type="cpu")`.
 
 ### 安装Vue相关依赖
 
@@ -47,6 +42,6 @@ python server.py
 
 即可打开命令行中的前端地址访问本Web应用
 
-默认的登录帐号:1264631168@qq.com
+默认的登录帐号:1264631168@qq.com 登陆密码:123456
 
-登陆密码:123456
+可以在`./src/components/Login.vue`里面修改
