@@ -188,12 +188,6 @@ class _UpsampleBlock(nn.Module):
 class _ContentLoss(nn.Module):
     """基于VGG19网络构建内容损失函数。
     使用后面层次的高级特征映射层将更加关注图像的纹理内容。
-
-    论文参考列表：
-        -`Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network <https://arxiv.org/pdf/1609.04802.pdf>` paper.
-        -`ESRGAN: Enhanced Super-Resolution Generative Adversarial Networks                    <https://arxiv.org/pdf/1809.00219.pdf>` paper.
-        -`Perceptual Extreme Super Resolution Network with Receptive Field Block               <https://arxiv.org/pdf/2005.12597.pdf>` paper.
-
     """
 
     def __init__(
